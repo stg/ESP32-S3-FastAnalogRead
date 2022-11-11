@@ -29,26 +29,26 @@ Initializes ADC and pins - don't use regular analogRead after initializing!
 
 `analogReadFast(<channel>)`
 
-Read the specified channel, which should be in the list of pins during initialization
+Convert and return result for the specified **channel** - corresponding pin must be in the list of pins during initialization.
 
 `analogReadMilliVoltsFast(<channel>)`
 
-Same as analogReadFast, but returns calibrated millivolt reading.
+Same as analogReadFast, but returns a calibrated millivolt reading.
 
 `adcConvert(<channel>)`
 
-Start a conversion and return immediately - don't call unless you know the ADC is not busy
+Start a conversion and return immediately - don't call unless you know the ADC is not busy.
 
 `adcBusy()`
 
-Returns true if the ADC is still converting
+Returns true if the ADC is still converting.
 
 `adcResult()`
 
-Return the result of the conversion - don't call unless you know a conversion has completed
+Return the result of the conversion - don't call unless you know a conversion has completed.
 
 `adcApply(<value>)`
 
-Apply calibration and conversion to millivolts
-Takes a value in the range 0-2**ADC_CAL_RESOLUTION (typically 0-4095)
+Apply calibration and convert result to millivolts.
+Takes a value in the range 0-2**ADC_CAL_RESOLUTION (default 0-4095).
  
