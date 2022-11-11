@@ -9,10 +9,12 @@ I didn't need thread-safety.
 At the point of writing (esp32 version 1.0.5), the API didn't have me covered.
 
 Performance of regular 'ol functions:
+
     analogRead:           16313 samples/second
     analogReadMilliVolts: 10909 samples/second
 	
 Performance of these functions:
+
     AnalogReadFast:           109984 samples/second
     AnalogReadMilliVoltsFast: 107987 samples/second
 	
@@ -22,24 +24,31 @@ API
 ---
 
 `dcReadFastInit(<number-of-pins>, <pin>(, <pin>(, ...))`
+
 Initializes ADC and pins - don't use regular analogRead after initializing!
 
 `analogReadFast(<channel>)`
+
 Read the specified channel, which should be in the list of pins during initialization
 
 `analogReadMilliVoltsFast(<channel>)`
+
 Same as analogReadFast, but returns calibrated millivolt reading.
 
 `adcConvert(<channel>)`
+
 Start a conversion and return immediately - don't call unless you know the ADC is not busy
 
 `adcBusy()`
+
 Returns true if the ADC is still converting
 
 `adcResult()`
+
 Return the result of the conversion - don't call unless you know a conversion has completed
 
 `adcApply(<value>)`
+
 Apply calibration and conversion to millivolts
 Takes a value in the range 0-2**ADC_CAL_RESOLUTION (typically 0-4095)
  
