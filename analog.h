@@ -4,7 +4,7 @@
 extern "C" {
 #endif
 
-/* "Library" to read ADC1 really fast - about 10x faster than using analogRead.
+/* "Library" to read ADC1 really fast - 6-10x faster than the regular API.
  * Also supports doing asynchronous conversions.
  * BUT it's not thread-safe.
  * 
