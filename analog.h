@@ -4,7 +4,7 @@
 extern "C" {
 #endif
 
-/* "Library" to read ADC1 really fast - 6-10x faster than the regular API.
+/* "Library" to read ADC1 really fast
  * Also supports doing asynchronous conversions.
  * BUT it's not thread-safe.
  * 
@@ -36,18 +36,19 @@ extern "C" {
 #include <hal/adc_hal.h>
 #include <esp32-hal-adc.h>
 
-#define ADC_CAL_USE
+#define ADC_CAL_USE                 // Comment out to remove everything calibration-related
 #define ADC_RESOLUTION           12 // Set ADC to 12-bit ADC resolution
 #define ADC_ATTEN          ADC_11db // Set ADC to 11dB attenuation
 
 #ifdef ADC_CAL_USE
 #define ADC_CAL_SIZE              6 // Calibration table with (1**N)=64 points (RAM use: 2 bytes per point)
 #define ADC_CAL_RESOLUTION       12 // Conversion takes input in range 0-4095 (1**N-1)
-// Number of bits to shift left by to make analogReadFast result suitable for applyCalibration, given settings above
+
+// Number of bits to shift left by to make analogReadFast result suitable for adcApply, given these settings
 #define ADC_CAL_SHIFT (ADC_CAL_RESOLUTION - ADC_RESOLUTION)
 #endif
 
-void     analogReadFastInit(uint8_t pins, ...);
+void analogReadFastInit(uint8_t pins, ...);
 #ifdef ADC_CAL_USE
 uint16_t adcApply(uint32_t v);
 #endif
@@ -67,11 +68,9 @@ static inline uint16_t  __attribute__((always_inline)) adcResult() {
 }
 
 static inline uint16_t  __attribute__((always_inline)) analogReadFast(uint8_t channel) {
-    SENS.sar_meas1_ctrl2.sar1_en_pad = (1 << channel);
-    SENS.sar_meas1_ctrl2.meas1_start_sar = 0;
-    SENS.sar_meas1_ctrl2.meas1_start_sar = 1;
-    while(!(bool)SENS.sar_meas1_ctrl2.meas1_done_sar);
-    return HAL_FORCE_READ_U32_REG_FIELD(SENS.sar_meas1_ctrl2, meas1_data_sar);
+    adcConvert(channel);
+    while(adcBusy());
+    return adcResult();
 }
 
 #ifdef ADC_CAL_USE
