@@ -8,17 +8,17 @@ I didn't need thread-safety.
 
 At the point of writing (esp32 version 1.0.5), the API didn't have me covered.
 
-Performance of regular 'ol functions:
+*Performance of regular 'ol functions:*
 
     analogRead:           16313 samples/second
     analogReadMilliVolts: 10909 samples/second
 	
-Performance of these functions:
+*Performance of these functions:*
 
     AnalogReadFast:           109984 samples/second
     AnalogReadMilliVoltsFast: 107987 samples/second
 	
-Thats 670% over regular analogRead and 980% over calibrated millivolt readings.
+Thats **670%** over regular analogRead and **980%** over calibrated millivolt readings.
 
 API
 ---
@@ -49,6 +49,6 @@ Return the result of the conversion - don't call unless you know a conversion ha
 
 `adcApply(<value>)`
 
-Apply calibration and convert result to millivolts.
+Apply calibration on, and convert ADC result (from `analogReadFast` or `adcResult`) to millivolts.  
 Takes a value in the range 0-2**ADC_CAL_RESOLUTION (default 0-4095).
  
