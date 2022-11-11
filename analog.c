@@ -97,9 +97,6 @@ void analogReadFastInit(uint8_t pins, ...) {
   analogReadResolution(ADC_RESOLUTION);
   analogSetAttenuation(ADC_ATTEN);
   
-extern void analogSetClockDiv(uint8_t clockDiv) __attribute__ ((weak, alias("__analogSetClockDiv")));
-extern void analogSetAttenuation(adc_attenuation_t attenuation) __attribute__ ((weak, alias("__analogSetAttenuation")));
-
   // Initialize pins using built-ins
   va_list args;
   va_start(args, pins);
