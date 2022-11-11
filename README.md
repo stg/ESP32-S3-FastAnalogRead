@@ -29,7 +29,7 @@ Initializes ADC and pins - don't use regular analogRead after initializing!
 
 `analogReadFast(<channel>)`
 
-Convert and return result for the specified **channel** - corresponding pin must be in the list of pins during initialization.
+Convert and return result for the specified **channel (NOT pin)** - corresponding pin must be in the list of pins during initialization.
 
 `analogReadMilliVoltsFast(<channel>)`
 
