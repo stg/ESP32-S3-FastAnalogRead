@@ -47,7 +47,7 @@ void performanceAnalogReadMilliVolts() {
     value2 += analogReadMilliVolts(6);
     count++;
   }
-  Serial.printf("analogReadMilliVolts    : %u samples/second (ch4:%u ch5:%u)\n", count / 2, value1 / count, value2 / count);
+  Serial.printf("analogReadMilliVolts    : %u samples/second (ch4:%umV ch5:%umV)\n", count / 2, value1 / count, value2 / count);
 }
 
 // Profile analogReadFast and print performance report
@@ -73,7 +73,7 @@ void performanceAnalogReadMilliVoltsFast() {
     value2 += analogReadMilliVoltsFast(5);
     count++;
   }
-  Serial.printf("AnalogReadMilliVoltsFast: %u samples/second (ch4:%u ch5:%u)\n", count / 2, value1 / count, value2 / count);
+  Serial.printf("AnalogReadMilliVoltsFast: %u samples/second (ch4:%umV ch5:%umV)\n", count / 2, value1 / count, value2 / count);
 }
 
 // Asynchronous example
@@ -89,7 +89,7 @@ void exampleAsync() {
   adcConvert(5);
   // Go do some funky stuff in the meantime... òÓ
   int prime = ({int p=2,n=0,f;for(;n</**/100/**/;p++)for(f=2;(f<p||!++n)&&p%f++;);--p;});
-  // Get the results without even checking for completions, just like all the cool kidz
+  // Get the results without even checking for completions, just like all the cool kidz do it
   Serial.printf("Asynchronous read (ch5) : %u\n", adcResult());
   Serial.printf("The 100th prime number  : %d\n", prime);
 }
