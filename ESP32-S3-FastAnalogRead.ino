@@ -11,7 +11,7 @@ void setup() {
   // Initialize ADC for reading really fast on 2 pins: 5 and 6
   // NOTE that regular AnalogRead must NOT be used beyond this point
   // NOTE that pin 5 is on channel 4 and pin 6 is on channel 5
-  analogReadFastInit(2, 5, 6);
+  fadcInit(2, 5, 6);
 
   // Print performance of optimized functions
   performanceAnalogReadFast();
@@ -78,19 +78,24 @@ void performanceAnalogReadMilliVoltsFast() {
 
 // Asynchronous example
 void exampleAsync() {
+  int result, prime;
+  
   // Start conversion on channel 4
-  adcConvert(4);
+  fadcStart(4);
   // Sit around like a nitwit, until the conversion is done
-  while(adcBusy());
-  // Get the result
-  Serial.printf("Asynchronous read (ch4) : %u\n", adcResult());
+  while(fadcBusy());
+  // Get the calibrated result
+  result = fadcApply(fadcResult() << FADC_SHIFT);
+  // Print results
+  Serial.printf("Asynchronous read (ch4) : %umV\n", result);
 
   // Start conversion on channel 5
-  adcConvert(5);
+  fadcStart(5);
   // Go do some funky stuff in the meantime... òÓ
-  int prime = ({int p=2,n=0,f;for(;n</**/100/**/;p++)for(f=2;(f<p||!++n)&&p%f++;);--p;});
+  prime = ({int p=2,n=0,f;for(;n</**/100/**/;p++)for(f=2;(f<p||!++n)&&p%f++;);--p;});
   // Get the results without even checking for completions, just like all the cool kidz do it
-  Serial.printf("Asynchronous read (ch5) : %u\n", adcResult());
+  result = fadcApply(fadcResult() << FADC_SHIFT);
+  Serial.printf("Asynchronous read (ch5) : %umV\n", result);
   Serial.printf("The 100th prime number  : %d\n", prime);
 }
 

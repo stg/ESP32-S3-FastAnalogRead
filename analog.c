@@ -5,13 +5,13 @@
 
 #include <hal/adc_hal.h>
 #include <driver/periph_ctrl.h>
-#ifdef ADC_CAL_USE
+#ifdef FADC_CAL_USE
 #include <esp_adc_cal.h>
 #endif
 
-#ifdef ADC_CAL_USE
+#ifdef FADC_CAL_USE
 // Calibration table
-static uint16_t adc_cal_tab[(1 << ADC_CAL_SIZE) + 1];
+static uint16_t adc_cal_tab[(1 << FADC_CAL_SIZE) + 1];
 
 typedef struct {
   uint64_t v_cali_input;                                      //Input to calculate the error
@@ -82,39 +82,39 @@ static uint32_t myesp_adc_cal_raw_to_voltage(uint32_t adc_reading, const esp_adc
     return voltage;
 }
 
-uint16_t adcApply(uint32_t v) {
+uint16_t fadcApply(uint32_t v) {
   if(v <= 0) return adc_cal_tab[0];
-  if(v >= (1 << ADC_CAL_RESOLUTION)) return adc_cal_tab[(1 << ADC_CAL_SIZE)];
-  uint32_t i = (v >> (ADC_CAL_RESOLUTION - ADC_CAL_SIZE));
-  uint32_t f = v & ((1 << (ADC_CAL_RESOLUTION - ADC_CAL_SIZE)) - 1);
-  return (uint16_t)(((uint32_t)adc_cal_tab[i] * ((1 << (ADC_CAL_RESOLUTION - ADC_CAL_SIZE)) - f) + (uint32_t)adc_cal_tab[i + 1] * f) >> (ADC_CAL_RESOLUTION - ADC_CAL_SIZE));
+  if(v >= (1 << FADC_CAL_RESOLUTION)) return adc_cal_tab[(1 << FADC_CAL_SIZE)];
+  uint32_t i = (v >> (FADC_CAL_RESOLUTION - FADC_CAL_SIZE));
+  uint32_t f = v & ((1 << (FADC_CAL_RESOLUTION - FADC_CAL_SIZE)) - 1);
+  return (uint16_t)(((uint32_t)adc_cal_tab[i] * ((1 << (FADC_CAL_RESOLUTION - FADC_CAL_SIZE)) - f) + (uint32_t)adc_cal_tab[i + 1] * f) >> (FADC_CAL_RESOLUTION - FADC_CAL_SIZE));
 }
 #endif
 
-void analogReadFastInit(uint8_t pins, ...) {
+void fadcInit(uint8_t pins, ...) {
 
   // Initialize ADC using built-ins
-  analogReadResolution(ADC_RESOLUTION);
-  analogSetAttenuation(ADC_ATTEN);
+  analogReadResolution(FADC_RESOLUTION);
+  analogSetAttenuation(FADC_ATTEN);
   
   // Initialize pins using built-ins
   va_list args;
   va_start(args, pins);
   while(pins--) {
     int pin = va_arg(args, int);
-    analogSetPinAttenuation(pin, ADC_ATTEN);
+    analogSetPinAttenuation(pin, FADC_ATTEN);
     analogRead(pin);
   }
   va_end(args);
 
-#ifdef ADC_CAL_USE
+#ifdef FADC_CAL_USE
   // Get ADC characteristings from EFUSE
   // Note: Assumes 11dB attenuation and 12 bit resolution
   esp_adc_cal_characteristics_t chars = {};
-  esp_adc_cal_value_t val_type = esp_adc_cal_characterize((adc_unit_t)1, (adc_atten_t)ADC_ATTEN, (adc_bits_width_t)(ADC_RESOLUTION - 9), 1100, &chars);
+  esp_adc_cal_value_t val_type = esp_adc_cal_characterize((adc_unit_t)1, (adc_atten_t)FADC_ATTEN, (adc_bits_width_t)(FADC_RESOLUTION - 9), 1100, &chars);
   // Generate calibration table
-  for(uint16_t n = 0; n <= (1 << ADC_CAL_SIZE); n++) {
-    adc_cal_tab[n] = myesp_adc_cal_raw_to_voltage(n << (ADC_RESOLUTION - ADC_CAL_SIZE), &chars);
+  for(uint16_t n = 0; n <= (1 << FADC_CAL_SIZE); n++) {
+    adc_cal_tab[n] = myesp_adc_cal_raw_to_voltage(n << (FADC_RESOLUTION - FADC_CAL_SIZE), &chars);
   }
 #endif
 

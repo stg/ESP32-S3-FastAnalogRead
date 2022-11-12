@@ -23,9 +23,9 @@ Thats **670%** over regular analogRead and **980%** over calibrated millivolt re
 API
 ---
 
-`dcReadFastInit(<number-of-pins>, <pin>(, <pin>(, ...))`
+`fadcInit(<number-of-pins>, <pin>(, <pin>(, ...))`
 
-Initializes ADC and pins - don't use regular analogRead after initializing!
+Initializes ADC and pins - don't use regular analogRead and friends after initializing!
 
 `analogReadFast(<channel>)`
 
@@ -35,19 +35,19 @@ Convert and return result for the specified **channel (NOT pin)** - correspondin
 
 Same as analogReadFast, but returns a calibrated millivolt reading.
 
-`adcConvert(<channel>)`
+`fadcStart(<channel>)`
 
 Start a conversion and return immediately - don't call unless you know the ADC is not busy.
 
-`adcBusy()`
+`fadcBusy()`
 
 Returns true if the ADC is still converting.
 
-`adcResult()`
+`fadcResult()`
 
 Return the result of the conversion - don't call unless you know a conversion has completed.
 
-`adcApply(<value>)`
+`fadcApply(<value>)`
 
 Apply calibration on, and convert ADC result (from `analogReadFast` or `adcResult`) to millivolts.  
 Takes a value in the range 0-2**ADC_CAL_RESOLUTION (default 0-4095).

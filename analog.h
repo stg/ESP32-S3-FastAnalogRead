@@ -4,12 +4,12 @@
 extern "C" {
 #endif
 
-/* "Library" to read ADC1 really fast
- * Also supports doing asynchronous conversions.
- * BUT it's not thread-safe.
+/* Driver to read ADC1 really fast and/or do asynchronous (non-blocking) conversions.
+ * Caution: Functions are not reentrant - be careful with threads and interrupts.
+ *          Apply a wrapper with locks/mutexes if necessary.
  * 
- * adcReadFastInit(<number-of-pins>, <pin>(, <pin>(, ...))
- * Initializes ADC and pins - don't use regular analogRead after initializing!
+ * fadcInit(<number-of-pins>, <pin>(, <pin>(, ...))
+ * Initializes ADC and pins - don't use regular analogRead and friends after initializing!
  * 
  * analogReadFast(<channel>)
  * Read the specified channel, which should be in the list of pins during initialization
@@ -17,18 +17,18 @@ extern "C" {
  * analogReadMilliVoltsFast(<channel>)
  * Same as analogReadFast, but returns calibrated millivolt reading.
  * 
- * adcConvert(<channel>)
+ * fadcStart(<channel>)
  * Start a conversion and return immediately - don't call unless you know the ADC is not busy
  * 
- * adcBusy()
+ * fadcBusy()
  * Returns true if the ADC is still converting
  * 
- * adcResult()
+ * fadcResult()
  * Return the result of the conversion - don't call unless you know a conversion has completed
  * 
- * adcApply(<value>)
+ * fadcApply(<value>)
  * Apply calibration and conversion to millivolts
- * Takes a value in the range 0-2**ADC_CAL_RESOLUTION (typically 0-4095)
+ * Takes a value in the range 0-2**FADC_CAL_RESOLUTION (typically 0-4095)
  */
 
 #include <stdint.h>
@@ -36,46 +36,51 @@ extern "C" {
 #include <hal/adc_hal.h>
 #include <esp32-hal-adc.h>
 
-#define ADC_CAL_USE                 // Comment out to remove everything calibration-related
-#define ADC_RESOLUTION           12 // Set ADC to 12-bit ADC resolution
-#define ADC_ATTEN          ADC_11db // Set ADC to 11dB attenuation
+#define FADC_CAL_USE                 // Comment out to remove everything calibration-related
+#define FADC_RESOLUTION           12 // Set ADC to 12-bit ADC resolution
+#define FADC_ATTEN          ADC_11db // Set ADC to 11dB attenuation
 
-#ifdef ADC_CAL_USE
-#define ADC_CAL_SIZE              6 // Calibration table with (1**N)=64 points (RAM use: 2 bytes per point)
-#define ADC_CAL_RESOLUTION       12 // Conversion takes input in range 0-4095 (1**N-1)
+#ifdef FADC_CAL_USE
+#define FADC_CAL_SIZE              6 // Calibration table with (1**N)=64 points (RAM use: 2 bytes per point)
+#define FADC_CAL_RESOLUTION       12 // Conversion takes input in range 0-4095 (1**N-1)
 
-// Number of bits to shift left by to make analogReadFast result suitable for adcApply, given these settings
-#define ADC_CAL_SHIFT (ADC_CAL_RESOLUTION - ADC_RESOLUTION)
+// Number of bits to shift left by to make fadcResult suitable for fadcApply
+#define FADC_SHIFT (FADC_CAL_RESOLUTION - FADC_RESOLUTION)
 #endif
 
-void analogReadFastInit(uint8_t pins, ...);
-#ifdef ADC_CAL_USE
-uint16_t adcApply(uint32_t v);
+// Library functions
+
+void fadcInit(uint8_t pins, ...);
+
+#ifdef FADC_CAL_USE
+uint16_t fadcApply(uint32_t v);
 #endif
 
-static inline void  __attribute__((always_inline)) adcConvert(uint8_t channel) {
+static inline void  __attribute__((always_inline)) fadcStart(uint8_t channel) {
     SENS.sar_meas1_ctrl2.sar1_en_pad = (1 << channel);
     SENS.sar_meas1_ctrl2.meas1_start_sar = 0;
     SENS.sar_meas1_ctrl2.meas1_start_sar = 1;
 }
 
-static inline bool __attribute__((always_inline)) adcBusy() {
+static inline bool __attribute__((always_inline)) fadcBusy() {
     return !(bool)SENS.sar_meas1_ctrl2.meas1_done_sar;
 }
 
-static inline uint16_t  __attribute__((always_inline)) adcResult() {
+static inline uint16_t  __attribute__((always_inline)) fadcResult() {
     return HAL_FORCE_READ_U32_REG_FIELD(SENS.sar_meas1_ctrl2, meas1_data_sar);
 }
 
+// Arduino-style "easy" functions
+
 static inline uint16_t  __attribute__((always_inline)) analogReadFast(uint8_t channel) {
-    adcConvert(channel);
-    while(adcBusy());
-    return adcResult();
+    fadcStart(channel);
+    while(fadcBusy());
+    return fadcResult();
 }
 
-#ifdef ADC_CAL_USE
+#ifdef FADC_CAL_USE
 static inline uint16_t __attribute__((always_inline)) analogReadMilliVoltsFast(uint8_t channel)  {
-    return adcApply(analogReadFast(channel) << ADC_CAL_SHIFT);
+    return fadcApply(analogReadFast(channel) << FADC_SHIFT);
 }
 #endif
 
