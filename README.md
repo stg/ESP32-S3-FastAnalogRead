@@ -3,8 +3,8 @@ ESP32-S3-FastAnalogRead
 
 Arduino IDE sketch that reads ADC1 very fast, and provides asynchronous (non-blocking) conversions on the ESP32-S3.
 
-I needed to read the ADC faster, and I needed asynchronous ADC conversions.  
-I did not need thread-safety.
+I needed to read the ADC way faster, and I needed conversions to be asynchronous.
+I did NOT need thread-safety.
 
 At the point of writing (esp32 version 1.0.5), the API didn't have me covered.
 
