@@ -92,7 +92,7 @@ void exampleAsync() {
   // Start conversion on channel 5
   fadcStart(5);
   // Go do some funky stuff in the meantime... òÓ
-  prime = ({int p=2,n=0,f;for(;n</**/100/**/;p++)for(f=2;(f<p||!++n)&&p%f++;);--p;});
+  prime = ({int p=1,n=/**/100/**/,f;for(;n;n-=f==p,p++)for(f=1;++f<p&&p%f;);p-1;});
   // Get the results without even checking for completions, just like all the cool kidz do it
   result = fadcApply(fadcResult() << FADC_SHIFT);
   Serial.printf("Asynchronous read (ch5) : %umV\n", result);
